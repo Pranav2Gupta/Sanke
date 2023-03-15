@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Snake Game</title>
+	<style>
+		body {
+			background-color: #333;
+			margin: 0;
+			padding: 0;
+		}
+
+		canvas {
+			display: block;
+			margin: auto;
+		}
+	</style>
+</head>
+<body>
+	<canvas id="canvas" width="400" height="400"></canvas>
+	<script>
+		// Initialize the canvas and its context
+		var canvas = document.getElementById("canvas");
+		var ctx = canvas.getContext("2d");
+
+		// Initialize the game variables
+		var gridSize = 10;
+		var snake = [{x: 200, y: 200}];
+		var direction = "right";
+		var food = generateFood();
+		var score = 0;
+
+		// Start the game loop
+		setInterval(gameLoop, 100);
+
+		// Handle keyboard input
+		document.addEventListener("keydown", function(event) {
+			if (event.code === "ArrowUp" && direction !== "down") {
+				direction = "up";
+			} else if (event.code === "ArrowDown" && direction !== "up") {
+				direction = "down";
+			} else if (event.code === "ArrowLeft" && direction !== "right") {
+				direction = "left";
+			} else if (event.code === "ArrowRight" && direction !== "left") {
+				direction = "right";
+			}
+		});
+
+		// Main game loop
+		function gameLoop() {
+			// Move the snake in the current direction
+			var head = snake[0];
+			if (direction === "up") {
+				snake.unshift({x: head.x, y: head.y - gridSize});
+			} else if (direction === "down") {
+				snake.unshift({x: head.x, y: head.y + gridSize});
+			} else if (direction === "left") {
+				snake.unshift({x: head.x - gridSize, y: head.y});
+			} else if (direction === "right") {
+				snake.unshift({x: head.x + gridSize, y: head.y});
+			}
+
+			// Check if the snake has collided with the walls or itself
+			if (head.x < 0 || head.x >= canvas.width || head.y < 0 || head.y >= canvas.height || hasCollidedWithSelf()) {
+				alert("Game over!");
+				location.reload();
+			}
+
+			// Check if the snake has eaten the food
+			if (head.x === food.x && head.y === food.y) {
+				food = generateFood();
+				score++;
+			} else {
+				snake.pop();
+			}
+
+			// Clear the canvas and draw the snake and food
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
+			drawSnake();
+			drawFood();
+			drawScore();
+		}
+
+		// Generate a new food location that is not inside the snake
+		function generateFood() {
+			var food = {
+				x: Math.floor(Math.random() * (canvas.width / gridSize)) * gridSize,
+				y: Math.floor(Math.random() * (canvas.height / gridSize)) * gridSize
+			};
+
+			while (hasCollidedWithSnake(food)) {
+				food.x = Math.floor(Math.random
